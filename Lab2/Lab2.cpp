@@ -4,15 +4,19 @@
 
 using namespace std;
 
-const int MAX_LISTS = 10;  // Максимальна кількість списків
-ListOfNumbers* lists[MAX_LISTS];  // Масив вказівників на об'єкти ListOfNumbers
-int list_count = 0;  // Лічильник створених списків
+ListOfNumbers** lists = nullptr;  // Динамічний масив вказівників на списки
+int list_count = 0;               // Лічильник створених списків
+int list_capacity = 2;            // Початкова ємність для масиву списків
 
 void menu();
 void list_menu(ListOfNumbers* list);
+void expand_list_capacity();  // Функція для розширення масиву списків
 
 int main() {
     setlocale(LC_ALL, "Ukrainian");
+
+    // Початково виділяємо пам'ять для масиву списків
+    lists = new ListOfNumbers * [list_capacity];
 
     bool running = true;
 
@@ -22,14 +26,12 @@ int main() {
 
         switch (choice) {
         case 1: {  // Створити новий список
-            if (list_count < MAX_LISTS) {
-                lists[list_count] = new ListOfNumbers();
-                ++list_count;
-                cout << "Новий список створено!\n";
+            if (list_count == list_capacity) {
+                expand_list_capacity();  // Розширюємо масив при необхідності
             }
-            else {
-                cout << "Досягнуто максимальну кількість списків.\n";
-            }
+            lists[list_count] = new ListOfNumbers(10);
+            ++list_count;
+            cout << "Новий список створено!\n";
             break;
         }
         case 2: {  // Вибрати список для редагування
@@ -67,6 +69,8 @@ int main() {
     for (int i = 0; i < list_count; ++i) {
         delete lists[i];
     }
+    delete[] lists;  // Очищуємо пам'ять для масиву списків
+
     cout << "Програма завершена.\n";
     return 0;
 }
@@ -87,7 +91,8 @@ void list_menu(ListOfNumbers* list) {
         cout << "2. Видалити останнє число\n";
         cout << "3. Показати всі елементи\n";
         cout << "4. Відновити останню зміну\n";
-        cout << "5. Повернутися до головного меню\n";
+        cout << "5. Видалити перше число\n";
+        cout << "6. Повернутися до головного меню\n";
 
         int choice = ConsolIO::GetValue(cin);
 
@@ -111,6 +116,10 @@ void list_menu(ListOfNumbers* list) {
             break;
         }
         case 5: {
+            list->delete_first();
+            break;
+        }
+        case 6: {
             running = false;
             break;
         }
@@ -120,4 +129,19 @@ void list_menu(ListOfNumbers* list) {
         }
         }
     }
+}
+
+void expand_list_capacity() {
+    // Подвоюємо ємність масиву списків
+    list_capacity *= 2;
+    ListOfNumbers** new_lists = new ListOfNumbers * [list_capacity];
+
+    // Копіюємо старі списки у новий масив
+    for (int i = 0; i < list_count; ++i) {
+        new_lists[i] = lists[i];
+    }
+
+    // Очищуємо старий масив і замінюємо його новим
+    delete[] lists;
+    lists = new_lists;
 }

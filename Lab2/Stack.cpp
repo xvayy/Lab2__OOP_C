@@ -1,16 +1,13 @@
 #include "Stack.h"
-#include <iostream>
-#include "Stack.h"
 
 Stack::Stack(int capacity) {
-    this->top = -1;                // Ініціалізуємо верхній елемент як -1 (стек порожній)
+    this->top = -1;                // Ініціалізуємо верхній елемент (стек порожній)
     this->capacity = capacity;           // Встановлюємо ємність стека
-    this->elements = new int[this->capacity];  // Виділяємо пам'ять для масиву елементів
+    this->elements = new int[this->capacity];  // Динамічно виділяємо пам'ять для масиву елементів
 }
 
-
 Stack::~Stack() {
-    delete[] elements;
+    delete[] elements;  // Звільняємо пам'ять для масиву стека
 }
 
 void Stack::push(int value) {
